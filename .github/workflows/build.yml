@@ -16,19 +16,19 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       - name: Make gradlew executable
-        run: chmod +x elad_phone_tracker/gradlew
+        run: chmod +x gradlew
       - name: Build Release APK
-        run: cd elad_phone_tracker && ./gradlew assembleRelease
+        run: ./gradlew assembleRelease
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: EladTracker-APK
-          path: elad_phone_tracker/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: EladTracker v${{ github.run_number }}
-          files: elad_phone_tracker/app/build/outputs/apk/release/app-release-unsigned.apk
+          files: app/build/outputs/apk/release/app-release-unsigned.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
