@@ -15,14 +15,14 @@ object Constants {
     // Screenshot cadence for regular apps
     const val SCREENSHOT_INTERVAL_MS = 120_000L // 2 min default
 
-    // For WhatsApp/YouTube: take a follow-up shot 30s after app opens
-    const val SCREENSHOT_SPECIAL_DELAY_MS = 30_000L // 30s second shot
+    // WhatsApp: take a screenshot every 15 seconds while foregrounded
+    const val WHATSAPP_INTERVAL_MS = 15_000L
 
-    // Then continue at 60s intervals while the special app stays foregrounded
-    const val SCREENSHOT_SPECIAL_INTERVAL_MS = 60_000L // 1 min for special apps
+    // YouTube video follow-up: take a screenshot every 10 seconds after a new video starts
+    const val VIDEO_FOLLOW_UP_MS = 10_000L
 
-    // Apps that get higher-frequency screenshots
-    val SPECIAL_APPS = setOf("com.whatsapp", "com.google.android.youtube")
+    // Apps that get higher-frequency screenshots (WhatsApp only — YouTube handled via MediaSession)
+    val SPECIAL_APPS = setOf("com.whatsapp")
 
     const val PREFS_NAME = "tracker_prefs"
     const val PREF_SCREENSHOTS_ENABLED = "screenshots_enabled"
