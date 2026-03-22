@@ -28,8 +28,13 @@ class MediaSessionMonitorService : NotificationListenerService() {
 
     private var mediaSessionManager: MediaSessionManager? = null
 
+    // Track which MediaSession.Token values we've already attached a callback to,
+    // so we don't register duplicate callbacks when the session list refreshes.
+    // MediaSession.Token implements equals()/hashCode() via its internal binder.
+    private val attachedTokens = mutableSetOf<android.media.session.MediaSession.Token>()
+
     // Listener that fires whenever the list of active MediaSessions changes.
-    // Re-subscribes our callback to any new YouTube session that appears.
+    // Re-subscribes our callback to any NEW YouTube session that appears.
     private val sessionChangedListener =
         MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
             Log.d(TAG, "Active sessions changed: ${controllers?.size ?: 0} controllers")
@@ -63,7 +68,14 @@ class MediaSessionMonitorService : NotificationListenerService() {
 
     // Attaches a MediaController.Callback to the given YouTube controller so we are
     // notified whenever the video metadata (title, duration) changes.
+    // Skips controllers we've already subscribed to — prevents duplicate callbacks
+    // when the session list refreshes while the same session is still active.
     private fun attachYouTubeCallback(controller: MediaController) {
+        val token = controller.sessionToken
+        if (!attachedTokens.add(token)) {
+            Log.d(TAG, "Already attached to this YouTube controller — skipping")
+            return
+        }
         Log.d(TAG, "Attaching callback to YouTube MediaController")
 
         controller.registerCallback(object : MediaController.Callback() {
@@ -91,6 +103,8 @@ class MediaSessionMonitorService : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         Log.d(TAG, "Notification listener disconnected")
+
+        attachedTokens.clear()  // Reset so we reattach cleanly on next connect
 
         // Best-effort cleanup; manager reference may already be invalid
         try {
